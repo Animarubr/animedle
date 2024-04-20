@@ -41,8 +41,8 @@ class CheckGuest(Mongo):
         be = self.__handle_data_result(search_result)        
         response = {
             "episodeCheck": {
-                "isLessEpisodes": data["episodes"] < be["episodes"],
-                "isHigherEpisodes": data["episodes"] > be["episodes"],
+                "isLessEpisodes": data["episodes"] > be["episodes"],
+                "isHigherEpisodes": data["episodes"] < be["episodes"],
                 "isEqualEpisodes": data["episodes"] == be["episodes"],
                 "episodeGuest": data["episodes"],
             },
@@ -63,14 +63,14 @@ class CheckGuest(Mongo):
                 "themesGuest": data["themes"]
             },
             "releaseCheck": {
-                "isLessRelease": datetime.datetime.strptime(data["release"], "%Y-%m-%dT%H:%M:%S%z") <  datetime.datetime.strptime(be["release"], "%Y-%m-%dT%H:%M:%S%z"),
-                "isHigherRelease": datetime.datetime.strptime(data["release"], "%Y-%m-%dT%H:%M:%S%z") >  datetime.datetime.strptime(be["release"], "%Y-%m-%dT%H:%M:%S%z"),
+                "isLessRelease": datetime.datetime.strptime(data["release"], "%Y-%m-%dT%H:%M:%S%z") >  datetime.datetime.strptime(be["release"], "%Y-%m-%dT%H:%M:%S%z"),
+                "isHigherRelease": datetime.datetime.strptime(data["release"], "%Y-%m-%dT%H:%M:%S%z") <  datetime.datetime.strptime(be["release"], "%Y-%m-%dT%H:%M:%S%z"),
                 "isEqualRelease": datetime.datetime.strptime(data["release"], "%Y-%m-%dT%H:%M:%S%z") ==  datetime.datetime.strptime(be["release"], "%Y-%m-%dT%H:%M:%S%z"),
                 "releaseGuest": datetime.datetime.strptime(data["release"], "%Y-%m-%dT%H:%M:%S%z").year
             },
             "scoreCheck": {
-                "isLessScore": data["score"] < be["score"],
-                "isHigherScore": data["score"] > be["score"],
+                "isLessScore": data["score"] > be["score"],
+                "isHigherScore": data["score"] < be["score"],
                 "isEqualScore": data["score"] == be["score"],
                 "scoreGuest": data["score"]
             },
