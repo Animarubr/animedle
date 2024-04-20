@@ -1,30 +1,43 @@
 from jikanpy import Jikan
 import datetime
 
+from animedle.models.mongo import Mongo
 
-class CheckGuest():
+
+class CheckGuest(Mongo):
     def __init__(self) -> None:
+        super().__init__()
         self.jikan = Jikan()
-        self.anime_of_the_day = "Super Cub"
+    
+    def get_anime_of_the_day(self):
+        col = self.database.get_collection("daily")
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        anime_day = col.find_one({"data": today})
+        return anime_day
     
     @staticmethod    
     def __handle_data_result(raw):
-        return {
-            "thumb": raw["data"][0]["images"]["jpg"]["image_url"],
-            "episodes": raw["data"][0]["episodes"],
-            "titles": raw["data"][0]["titles"],
-            "compleated": raw["data"][0]["status"],
-            "release": raw["data"][0]["aired"]["from"],
-            "score": raw["data"][0]["score"],
-            "studio": raw["data"][0]["studios"][0]["name"],
-            "genre": raw["data"][0]["genres"][0]["name"],
-            "themes": raw["data"][0]["themes"][0]["name"],
-        }
+        if raw["data"]:
+            data = raw["data"][0]
+            return {
+                "thumb": data["images"]["jpg"]["image_url"],
+                "episodes": data.get("episodes"),
+                "titles": data.get("titles"),
+                "compleated": data.get("status"),
+                "release": data["aired"]["from"],
+                "score": data.get("score"),
+                "studio": data["studios"][0]["name"] if data["studios"] else None,
+                "genre": data["genres"][0]["name"] if data["genres"] else None,
+                "themes": data["themes"][0]["name"] if data["themes"] else None,
+            }
+            
+        return []
         
     def handle_result(self, target):
+        anime_day = self.get_anime_of_the_day()
         search_result = self.jikan.search('anime', target)
         data = self.__handle_data_result(search_result)
-        search_result = self.jikan.search('anime', self.anime_of_the_day)
+        search_result = self.jikan.search('anime', anime_day.get("name"))
         be = self.__handle_data_result(search_result)        
         response = {
             "episodeCheck": {
@@ -61,12 +74,12 @@ class CheckGuest():
                 "isEqualScore": data["score"] == be["score"],
                 "scoreGuest": data["score"]
             },
-            "isRight": True if data["titles"][0]["title"] == be["titles"][0]["title"] else False
+            "isCorrect": True if data["titles"][0]["title"] == be["titles"][0]["title"] else False
         }
         
-        if response["isRight"]:
+        if response["isCorrect"]:
             response["image"] = be["thumb"]
         else:
             response["image"] = data["thumb"]
-            
+        
         return response

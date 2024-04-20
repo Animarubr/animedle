@@ -13,4 +13,5 @@ async def check_guest(data: Request = None):
         data = await data.json()
         result = CheckGuest()
         return result.handle_result(data["target"])
+
     
